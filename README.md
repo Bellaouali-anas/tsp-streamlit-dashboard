@@ -1,2 +1,30 @@
 # tsp-streamlit-dashboard
-This project is an interactive web application built with Streamlit that demonstrates and compares multiple algorithms for solving the Traveling Salesman Problem (TSP). Users can input locations manually or via search, choose optimization algorithms, and visually track the progress and performance of each method over time.
+
+A Streamlit-based web application that allows users to solve and compare different algorithms for the Traveling Salesman Problem (TSP). This project visualizes the optimization progress of each algorithm, provides interactive control over the input data (locations), and presents the results with styled charts and tables.
+
+🚀 Features
+📍 Add locations manually or via geolocation
+
+📊 Compare multiple algorithms (e.g., Nearest Neighbor, 2-opt, Simulated Annealing)
+
+📈 Interactive ECharts visualization of optimization progress
+
+🧮 Styled DataFrame for final result comparison (distance, time, etc.)
+
+🧹 Remove and manage locations dynamically
+
+🎨 Custom styling for UI elements and charts
+
+📦 Technologies
+Python
+
+Streamlit
+
+pyecharts (via streamlit-echarts)
+
+Pandas, NumPy
+
+📬 Contact
+Your Name
+📧 your.email@gmail.com
+🔗 www.linkedin.com/in/anas-bellaouali
