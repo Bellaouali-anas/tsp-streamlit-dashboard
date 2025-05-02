@@ -2,7 +2,7 @@
 
 A Streamlit-based web application that allows users to solve and compare different algorithms for the Traveling Salesman Problem (TSP). This project visualizes the optimization progress of each algorithm, provides interactive control over the input data (locations), and presents the results with styled charts and tables.
 
-🚀 Features
+# Features
 📍 Add locations manually or via geolocation
 
 📊 Compare multiple algorithms (e.g., Nearest Neighbor, 2-opt, Simulated Annealing)
@@ -15,16 +15,9 @@ A Streamlit-based web application that allows users to solve and compare differe
 
 🎨 Custom styling for UI elements and charts
 
-📦 Technologies
-Python
+📦 Technologies : Python, Streamlit, pyecharts (via streamlit-echarts), Pandas, NumPy
 
-Streamlit
-
-pyecharts (via streamlit-echarts)
-
-Pandas, NumPy
-
-📬 Contact
-Your Name
-📧 your.email@gmail.com
+# Contact
+ANAS BELLAOUALI
+📧 bellaoualai.anas@gmail.com
 🔗 www.linkedin.com/in/anas-bellaouali
