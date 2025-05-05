@@ -9,31 +9,40 @@ import io
 from utils import  generate_distance_matrix, algorithmes, run_algorithmes, convert_to_float
 
 
+
 # Set page configuration
 st.set_page_config(page_title="TSP Solver App", layout="wide")
+
 
 # Inject custom CSS
 st.markdown("""
     <style>
-            
-    button[kind="primary"] > div:has-text("x"),
-    div.stButton > button {
-        background-color: transparent !important;
-        color: #ee6c4d !important;
-        font-size: 20px !important;
-        border: none !important;
-        box-shadow: none !important;
-        padding: 0px 8px !important;
-    }
-
-    div.stButton > button:hover {
-        color: darkred !important;
-        background-color: #ee6c4d !important;
-        border-radius: 4px;
-    }
+        .location-box {
+            border: 1px solid #293241;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #98C1D9;
+        }
+        .location-text {
+            font-size: 14px;
+            font-family: 'Segoe UI', sans-serif;
+            color: #333;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+     
+        }
+        .stButton>button {
+            background-color: #98C1D9;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            padding: 4px 8px;
+        }
     </style>
-""", unsafe_allow_html=True)    
-
+""", unsafe_allow_html=True)
 
 # Initialize session state variables
 if 'locations' not in st.session_state:
@@ -41,16 +50,18 @@ if 'locations' not in st.session_state:
 if 'results' not in st.session_state:
     st.session_state.results = []
 
-# Title
-st.title("TSP Solver App")
+
 
 # Helper function to truncate long strings
-def truncate_text(text, max_length=30):
+def truncate_text(text, max_length=50):
     return text if len(text) <= max_length else text[:max_length - 3] + "..."
+
 
 # Sidebar for location input
 with st.sidebar:
-    st.header("Locations")
+
+    if st.session_state.locations :
+        st.header("Locations")
     
     # Display list of selected locations
     #if st.session_state.locations:
@@ -59,19 +70,20 @@ with st.sidebar:
     # Display list with delete button
 
     for idx, loc in enumerate(st.session_state.locations):
-        col1, col2 = st.sidebar.columns([0.85, 0.15])  # Text and delete button
-        st.markdown('<div class="remove-button-container">', unsafe_allow_html=True)
-        with col1:
-            display_text = truncate_text(f"{loc['name']} (Lat: {loc['Geocordinate'][0] :.6f}, Lon: {loc['Geocordinate'][1]:.6f})")
-            st.write(display_text)
-        with col2:
-            
-            
-            if st.button("x", key=f"remove_{idx}"):
-                del st.session_state.locations[idx]
-                st.session_state.results = []
-                st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
+        display_text = truncate_text(
+            f"<strong>{loc['name']}</strong> (Lat: {loc['Geocordinate'][0]:.6f}, Lon: {loc['Geocordinate'][1]:.6f})"
+        )
+
+        with st.container():
+            cols = st.columns([0.85, 0.15])
+            with cols[0]:
+                st.markdown(f"<div class='location-box'><div class='location-text'>{display_text}</div></div>", unsafe_allow_html=True)
+            with cols[1]:
+                if st.button("x", key=f"remove_{idx}"):
+                    del st.session_state.locations[idx]
+                    st.session_state.results = []
+                    st.rerun()
+
   
     # Manual location inputs
     st.subheader("Add Location Manually")
@@ -125,11 +137,49 @@ with st.sidebar:
     """, unsafe_allow_html=True)
     st.markdown("Feel free to reach out or check out my work!")
 
+
+
+    
+
+# Use columns to center
+col1, col2, col3 = st.columns([3,3,1])
+with col1:
+    
+    st.image("header_img.png", width=400)
+
+with col2:
+
+    #add top margin top
+    st.markdown("<div style='margin-top: 100px;'></div>", unsafe_allow_html=True)
+    # Title
+    st.title("TSP Solver App")
+
+    st.markdown("""
+    <div style="padding-top: 20px;">
+        <p style="color: #555; font-size: 18px; max-width: 700px; margin: auto;">
+            A study-focused Streamlit web app to visualize and compare different algorithms 
+            solving the Traveling Salesman Problem (TSP). Built for learning, experimentation, 
+            and educational purposes.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    
+
+
+
+
 # Main content area
-col_map, col_controls = st.columns([3, 1])
+col_map, col_results = st.columns([2, 1])
+
+
 
 # Create a map
 with col_map:
+
+    #add top margin top
+    st.markdown("<div style='margin-top: 50px;'></div>", unsafe_allow_html=True)
+
     # Default location (center of the map) - adjust as needed
     default_location = [0, 0]
     if st.session_state.locations:
@@ -158,6 +208,7 @@ with col_map:
         # Get coordinates of the optimized route
         lowest = min(st.session_state.results, key=lambda x: x["distance"])
         route_coords = [st.session_state.locations[i]["Geocordinate"] for i in lowest['optimized_route']]
+
         # Add the first location again to complete the circuit
         route_coords.append(route_coords[0])
         
@@ -174,6 +225,7 @@ with col_map:
     
     # Handle map clicks to add new locations
     if map_data["last_clicked"]:
+
         clicked_lat = map_data["last_clicked"]["lat"]
         clicked_lon = map_data["last_clicked"]["lng"]
         idx = len(st.session_state.locations)
@@ -183,14 +235,17 @@ with col_map:
         if new_location not in st.session_state.locations:
             st.session_state.locations.append(new_location)
             st.rerun()
+        
+with col_results : 
 
-# TSP algorithm selection and execution
-with col_controls:
+    #add top margin top
+    st.markdown("<div style='margin-top: 50px;'></div>", unsafe_allow_html=True)
 
-    st.subheader("TSP Algorithms")
+    #add sub-header
+    st.subheader("TSP algorithms")
+
     # Multiselect input
     algorithms =  [algorithm for algorithm, _ in algorithmes]
-    
     selected_algorithms = st.multiselect("Select 3 algorithms:",options=algorithms)
 
     # Execute TSP algorithm
@@ -216,52 +271,88 @@ with col_controls:
     # calculate and display lowest distance
     if st.session_state.results:
      
+        st.subheader("TSP Solution")
+
+        # find the best solution
         lowest = min(st.session_state.results, key=lambda x: x["distance"])
 
+        # show the minimal distance
         st.metric(
             label="Optimal Distance",
             value=f"{lowest['distance']:.2f} km"
         )
-    
+
+        # show the execution time to find the minimal time
         st.metric(
             label="Execution Time",
             value=f"{lowest['time']:.6f} sec"
         )
 
-# Main content area
-col_chart, col_df = st.columns([2, 1])
+
+# charts place
+col_chart, col_df = st.columns([3, 2])
 
  
 if st.session_state.results:
 
     with col_df:
 
-        st.subheader("TSP Solution Results")
 
-        results_df = pd.DataFrame({ 
-            "Algorithem" : selected_algorithms,
-            "Distance" : [result["distance"] for result in st.session_state.results],
-            "time" : [result["time"] for result in st.session_state.results]
-        })
-        # Style the dataframe
-        styled_df = results_df.style\
-            .set_table_styles([
-                {'selector': 'th', 'props': [('font-size', '16px'), ('background-color', '#f0f0f0'), ('color', '#333')]},
-                {'selector': 'td', 'props': [('font-size', '14px'), ('color', '#444')]}
-            ])\
-            .format({
-                "Distance (km)": "{:.2f}",
-                "Time (s)": "{:.2f}"
-            })
+        # Define ECharts option
+        hist_option = {
+            "backgroundColor": "#293241",
+            "title": {
+                "text": "Execution Time Histogram ",
+                "left": "center",
+                "textStyle": {
+                    "color": "#e0fbfc",
+                    "fontSize": 25,
+                    "fontFamily": "Verdana",
+                    "fontWeight": "bold"
+                }
+            },
+            "tooltip": {
+                "trigger": "axis"
+            },
+            "xAxis": {
+                "type": "category",
+                "data": selected_algorithms,
+                "axisLabel": {"rotate": 45,
+                              "fontSize": 12,
+                            "fontFamily": "Verdana",
+                            "color": "#f6fff8"
+                            }
 
-        # Display styled DataFrame without the index
-        st.dataframe(styled_df.hide(axis="index"), use_container_width=True)
+            },
+            "yAxis": {
+                "type": "value",
+                 "axisLine": {
+                    "lineStyle": {
+                        "color": "#f6fff8",
+                    }
+                },
+                "axisLabel": {
+                    "fontSize": 12,
+                    "fontFamily": "Verdana"
+                }
+            },
+            "series": [{
+                "type": "bar",
+                "data": [result["time"] for result in st.session_state.results],
+                "itemStyle": {
+                    "color": "#e0fbfc"
+                }
+            }]
+        }
+
+        # Render the chart
+        st_echarts(options=hist_option, height="400px")
 
     with col_chart:
        
         # ECharts option for multiple lines
         option = {
-            "backgroundColor": "#293241",
+            "backgroundColor": "#98C1D9",
             "title": {
                 "text": "Solution Progress",
                 "left": "center",
@@ -286,7 +377,7 @@ if st.session_state.results:
                 "data": selected_algorithms,
                 "top": "10%",
                 "textStyle": {
-                    "color": "#98c1d9",
+                    "color": "#293241",
                     "fontSize": 16
                 }
             },
@@ -343,7 +434,7 @@ if st.session_state.results:
                     "type": "line",
                     "data": convert_to_float(st.session_state.results[2]["progress_data"]),
                     "lineStyle": {"width": 2},
-                    "itemStyle": {"color": "#98c1d9"}  # green
+                    "itemStyle": {"color": "#293241"}  # green
                 }
             ]
         }
