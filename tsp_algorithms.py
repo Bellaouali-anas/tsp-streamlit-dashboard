@@ -35,6 +35,7 @@ def nearest_neighbor(distance_matrix):
     
     # Return to starting point
     total_distance += distance_matrix[tour[-1]][tour[0]]
+    progress_data.append(total_distance)
     
     return tour, total_distance, progress_data
 
