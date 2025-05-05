@@ -298,7 +298,7 @@ if st.session_state.results:
     with col_df:
 
 
-        # Define ECharts option
+        # Define ECharts option for the histogram
         hist_option = {
             "backgroundColor": "#293241",
             "title": {
