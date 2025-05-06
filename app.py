@@ -7,7 +7,6 @@ from utils import  generate_distance_matrix, algorithmes, run_algorithmes, conve
 
 
 
-# Set page configuration
 st.set_page_config(page_title="TSP Solver App", layout="wide")
 
 
