@@ -3,9 +3,6 @@ import folium
 from streamlit_folium import st_folium
 from streamlit_echarts import st_echarts
 import pandas as pd
-import time
-import matplotlib.pyplot as plt
-import io
 from utils import  generate_distance_matrix, algorithmes, run_algorithmes, convert_to_float
 
 
@@ -18,7 +15,7 @@ st.set_page_config(page_title="TSP Solver App", layout="wide")
 st.markdown("""
     <style>
         .location-box {
-            border: 1px solid #293241;
+            border: 1px solid #E0FBFC;
             border-radius: 10px;
             padding: 10px;
             margin-bottom: 10px;
@@ -104,7 +101,7 @@ with st.sidebar:
 
     # CSV Upload
     st.subheader("Upload Locations CSV")
-    st.write("CSV should have 'latitude' and 'longitude' columns")
+    st.write("*CSV should have 'latitude' and 'longitude' columns")
     uploaded_file = st.file_uploader("Choose a CSV file", type=["csv"])
     
     if uploaded_file is not None:
@@ -151,6 +148,7 @@ with col2:
 
     #add top margin top
     st.markdown("<div style='margin-top: 100px;'></div>", unsafe_allow_html=True)
+
     # Title
     st.title("TSP Solver App")
 
@@ -165,13 +163,8 @@ with col2:
     """, unsafe_allow_html=True)
 
     
-
-
-
-
 # Main content area
 col_map, col_results = st.columns([2, 1])
-
 
 
 # Create a map
