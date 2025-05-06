@@ -3,7 +3,7 @@ import folium
 from streamlit_folium import st_folium
 from streamlit_echarts import st_echarts
 import pandas as pd
-from utils import  generate_distance_matrix, algorithmes, run_algorithmes, convert_to_float
+from utils import  generate_distance_matrix, algorithmes, run_algorithmes, convert_to_float, equalize_length
 
 
 
@@ -18,7 +18,7 @@ st.markdown("""
             border: 1px solid #E0FBFC;
             border-radius: 10px;
             padding: 10px;
-            margin-bottom: 10px;
+            margin-bottom: 0px;
             background-color: #98C1D9;
         }
         .location-text {
@@ -74,12 +74,14 @@ with st.sidebar:
         with st.container():
             cols = st.columns([0.85, 0.15])
             with cols[0]:
-                st.markdown(f"<div class='location-box'><div class='location-text'>{display_text}</div></div>", unsafe_allow_html=True)
+                st.markdown(f"<div class='location-box'><div class='location-text'>{display_text}</div>",  unsafe_allow_html=True)
             with cols[1]:
                 if st.button("x", key=f"remove_{idx}"):
                     del st.session_state.locations[idx]
                     st.session_state.results = []
                     st.rerun()
+            
+            st.markdown(f"</div>", unsafe_allow_html=True)
 
   
     # Manual location inputs
@@ -343,6 +345,8 @@ if st.session_state.results:
 
     with col_chart:
        
+        #Line_1, Line_2, Line_3  = equalize_length()
+
         # ECharts option for multiple lines
         option = {
             "backgroundColor": "#98C1D9",
@@ -413,21 +417,46 @@ if st.session_state.results:
                     "type": "line",
                     "data": convert_to_float(st.session_state.results[0]["progress_data"]),
                     "lineStyle": {"width": 2},
-                    "itemStyle": {"color": "#ee6c4d"}  # red
+                    "itemStyle": {"color": "#ee6c4d"},  # red
+                    "emphasis": {
+                            "focus": "series",
+                            "label": {
+                                "show": True,
+                                "formatter": "{c}",
+                                "fontSize": 14
+                            }
+                        }
                 },
                 {
                     "name": st.session_state.results[1]["algorithm"],
                     "type": "line",
                     "data": convert_to_float(st.session_state.results[1]["progress_data"]),
                     "lineStyle": {"width": 2},
-                    "itemStyle": {"color": "#e0fbfc"}  # blue
+                    "itemStyle": {"color": "#e0fbfc"},  # blue
+                    "emphasis": {
+                            "focus": "series",
+                            "label": {
+                                "show": True,
+                                "formatter": "{c}",
+                                "fontSize": 14
+                            }
+                        }
                 },
                 {
                     "name": st.session_state.results[2]["algorithm"],
                     "type": "line",
                     "data": convert_to_float(st.session_state.results[2]["progress_data"]),
                     "lineStyle": {"width": 2},
-                    "itemStyle": {"color": "#293241"}  # green
+                    "itemStyle": {"color": "#293241"},  # green
+                    "showSymbol": True,
+                    "emphasis": {
+                            "focus": "series",
+                            "label": {
+                                "show": True,
+                                "formatter": "{c}",
+                                "fontSize": 14
+                            }
+                        }
                 }
             ]
         }

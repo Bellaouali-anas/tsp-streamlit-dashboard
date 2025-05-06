@@ -1,11 +1,14 @@
 import numpy as np
 import math
 from tsp_algorithms import nearest_neighbor, two_opt, simulated_annealing
+from Solveur_fourmis import ant_colony
 import time
+
 
 algorithmes = [("Nearest Neighbor",nearest_neighbor),
                ("2-opt",two_opt),
-               ("Simulated Annealing", simulated_annealing)
+               ("Simulated Annealing", simulated_annealing),
+               ( "ant colony" ,ant_colony)
                ]
 
 def haversine_distance(lat1, lon1, lat2, lon2):
@@ -76,3 +79,14 @@ def run_algorithmes(selected_algo: list, distance_matrix: np.array) -> list :
 
 def convert_to_float(data_list):
     return [float(x) for x in data_list]
+
+def equalize_length(l1, l2, l3):
+    max_len = max(len(l1), len(l2), len(l3))
+
+    def extend_list(lst):
+        if not lst:
+            return [None] * max_len
+        return lst + [lst[-1]] * (max_len - len(lst))
+
+    return extend_list(l1), extend_list(l2), extend_list(l3)
+
