@@ -10,7 +10,7 @@ from utils import  generate_distance_matrix, algorithmes, run_algorithmes, conve
 st.set_page_config(page_title="TSP Solver App", layout="wide")
 
 
-# Inject custom CSS
+# Inject custom HTML and CSS
 st.markdown("""
     <style>
         .location-box {
