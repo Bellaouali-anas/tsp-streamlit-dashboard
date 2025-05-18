@@ -15,8 +15,6 @@ share/
 poetry.lock
 pyvenv.cfg
 
-# Streamlit logs and config
-.streamlit/
 
 # OS-specific
 .DS_Store
