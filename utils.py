@@ -2,13 +2,15 @@ import numpy as np
 import math
 from tsp_algorithms import nearest_neighbor, two_opt, simulated_annealing
 from Solveur_fourmis import ant_colony
+from branch_Bound import branch_and_bound
 import time
 
 
 algorithmes = [("Nearest Neighbor",nearest_neighbor),
                ("2-opt",two_opt),
                ("Simulated Annealing", simulated_annealing),
-               ( "ant colony" ,ant_colony)
+               ( "Ant colony" ,ant_colony),
+               ("Branch & Bound", branch_and_bound)
                ]
 
 def haversine_distance(lat1, lon1, lat2, lon2):
@@ -40,7 +42,7 @@ def generate_distance_matrix(locations):
    
     n = len(locations)
    
-    distance_matrix = np.zeros((n, n))
+    distance_matrix = np.zeros((n, n), dtype=float)
     
     for i in range(n):
         for j in range(i+1, n):
@@ -57,14 +59,18 @@ def generate_distance_matrix(locations):
                
 def run_algorithmes(selected_algo: list, distance_matrix: np.array) -> list :
     
+    
     results = []
     # Check and run functions
     for option, func in algorithmes:
         
+        
         if option in selected_algo:
             
+            print("starting executing :" , option)
             start_time = time.time()
             optimized_route, distance, progress_data = func(distance_matrix)
+
             dict = {
                 "algorithm" : option,
                 "optimized_route" : optimized_route,
@@ -72,6 +78,7 @@ def run_algorithmes(selected_algo: list, distance_matrix: np.array) -> list :
                 "progress_data" : progress_data,
                 "time" : time.time() - start_time 
             }
+            print(option, " executing ended")
             results.append(dict)
 
     

@@ -40,6 +40,8 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+
+
 # Initialize session state variables
 if 'locations' not in st.session_state:
     st.session_state.locations = []

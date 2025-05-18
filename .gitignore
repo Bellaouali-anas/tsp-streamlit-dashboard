@@ -1,2 +1,25 @@
-/lib
-/__pycache__
+# Ignore Python cache
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual environment and package-related folders
+pycash/
+strimlite/
+etc/
+include/
+lib/
+scripts/
+share/
+
+# Poetry & virtual environment files
+poetry.lock
+pyproject.toml
+pyvenv.cfg
+
+# Streamlit logs and config
+.streamlit/
+
+# OS-specific
+.DS_Store
+Thumbs.db
