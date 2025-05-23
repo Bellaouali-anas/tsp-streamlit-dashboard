@@ -8,7 +8,7 @@ You can:
 - Choose the TSP algorithms you want to compare  
 - Run the solvers and view side-by-side results in an interactive dashboard
 
-🔴 **[Live Demo](https://bellaoualitsp.streamlit.app)** 
+🔴 **[Live Demo](https://bellaouali-tsp-app-dashboard.streamlit.app)** 
 💻 **[GitHub Repo](https://github.com/Bellaouali-anas/tsp-streamlit-dashboard.git)** 
 
 ## 📷 Screenshots
