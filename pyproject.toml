@@ -1,7 +1,7 @@
 [project]
 name = "Anas_bellaouali_workspace"
 version = "0.1.0"
-description = "Add your description here"
+description = "Interactive TSP dashboard using Streamlit – compare and visualize algorithms like Nearest Neighbor, Simulated Annealing, and 2-opt."
 requires-python = ">=3.11"
 dependencies = [
     "folium>=0.19.5",
