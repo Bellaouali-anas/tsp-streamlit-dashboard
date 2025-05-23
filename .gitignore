@@ -14,7 +14,7 @@ share/
 # Poetry & virtual environment files
 poetry.lock
 pyvenv.cfg
-
+pyproject.toml
 
 # OS-specific
 .DS_Store
