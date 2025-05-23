@@ -8,19 +8,19 @@ You can:
 - Choose the TSP algorithms you want to compare  
 - Run the solvers and view side-by-side results in an interactive dashboard
 
-## 📷 Screenshots
-
-<div align="center">
-  <img src="images/screenshot1.png" alt="Screenshot 1" width="30%" />
-  <img src="images/screenshot2.png" alt="Screenshot 2" width="30%" />
-  <img src="images/screenshot3.png" alt="Screenshot 3" width="30%" />
-</div>
-
 🔴 **[Live Demo](https://bellaoualitsp.streamlit.app)** 
 💻 **[GitHub Repo](https://github.com/Bellaouali-anas/tsp-streamlit-dashboard.git)** 
 
+## 📷 Screenshots
 
-# ✨ Features
+<div align="center">
+  <img src="Images/Screenshot1.PNG" alt="Screenshot 1" width="30%" />
+  <img src="Images/Screenshot2.PNG" alt="Screenshot 2" width="30%" />
+  <img src="Images/Screenshot3.PNG" alt="Screenshot 3" width="30%" />
+</div>
+
+
+## ✨ Features
 📍 Add locations manually or via geolocation
 
 📊 Compare multiple algorithms (e.g., Nearest Neighbor, 2-opt, Simulated Annealing)
