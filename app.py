@@ -145,7 +145,7 @@ with st.sidebar:
 col1, col2, col3 = st.columns([3,3,1])
 with col1:
     
-    st.image("header_img.png", width=400)
+    st.image("Images/header_img.png", width=400)
 
 with col2:
 
