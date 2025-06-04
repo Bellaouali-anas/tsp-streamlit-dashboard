@@ -9,10 +9,64 @@ from utils import  generate_distance_matrix, algorithmes, run_algorithmes, conve
 
 st.set_page_config(page_title="TSP Solver App", layout="wide")
 
+st.markdown("""
+    <style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    </style>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<style>
+    .custom-navbar {
+        position: fixed;
+        height: 0%;
+        display: flex;
+        width : 100%;
+        background-color: #e0fbfc;
+        margin-top:0;
+        padding-top:0;
+        color: black;
+       
+        margin-bottom: 0px;
+        z-index: 10000;
+    }
+
+    .custom-navbar h2 {
+        margin: 0;
+        padding: 0;
+        font-size: 3rem;
+    }
+</style>
+
+
+""", unsafe_allow_html=True)
+
+
+st.markdown("""
+    <style>
+        /* Remove padding from the main content container */
+        .block-container {
+            padding-top: 0rem !important;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+        }
+
+        /* Optional: remove margin on main if needed */
+        .main {
+            margin-top: 0rem !important;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+#st.title("TSP Solver App")
 
 # Inject custom HTML and CSs
 st.markdown("""
     <style>
+            
+
         .location-box {
             border: 1px solid #E0FBFC;
             border-radius: 10px;
@@ -57,33 +111,6 @@ def truncate_text(text, max_length=50):
 
 # Sidebar for location input
 with st.sidebar:
-
-    if st.session_state.locations :
-        st.header("Locations")
-    
-    # Display list of selected locations
-    #if st.session_state.locations:
-        #for idx, loc in enumerate(st.session_state.locations):
-            #st.write(truncate_text(f"{loc['name']} (Lat: {loc['Geocordinate'][0] :.6f}, Lon: {loc['Geocordinate'][1]:.6f})"))
-    # Display list with delete button
-
-    for idx, loc in enumerate(st.session_state.locations):
-        display_text = truncate_text(
-            f"<strong>{loc['name']}</strong> (Lat: {loc['Geocordinate'][0]:.6f}, Lon: {loc['Geocordinate'][1]:.6f})"
-        )
-
-        with st.container():
-            cols = st.columns([0.85, 0.15])
-            with cols[0]:
-                st.markdown(f"<div class='location-box'><div class='location-text'>{display_text}</div>",  unsafe_allow_html=True)
-            with cols[1]:
-                if st.button("x", key=f"remove_{idx}"):
-                    del st.session_state.locations[idx]
-                    st.session_state.results = []
-                    st.rerun()
-            
-            st.markdown(f"</div>", unsafe_allow_html=True)
-
   
     # Manual location inputs
     st.subheader("Add Location Manually")
@@ -101,6 +128,33 @@ with st.sidebar:
         location = {"name" : name , "Geocordinate" : (lat, lon)}
         st.session_state.locations.append(location)
         st.rerun()
+
+    if st.session_state.locations :
+        st.header("Locations")
+    
+    # Display list of selected locations
+    #if st.session_state.locations:
+        #for idx, loc in enumerate(st.session_state.locations):
+            #st.write(truncate_text(f"{loc['name']} (Lat: {loc['Geocordinate'][0] :.6f}, Lon: {loc['Geocordinate'][1]:.6f})"))
+    # Display list with delete button
+
+    with st.container(height=300, border = None):
+        for idx, loc in enumerate(st.session_state.locations):
+            display_text = truncate_text(
+                f"<strong>{loc['name']}</strong> (Lat: {loc['Geocordinate'][0]:.6f}, Lon: {loc['Geocordinate'][1]:.6f})"
+            )
+
+            with st.container():
+                cols = st.columns([0.85, 0.15])
+                with cols[0]:
+                    st.markdown(f"<div class='location-box'><div class='location-text'>{display_text}</div>",  unsafe_allow_html=True)
+                with cols[1]:
+                    if st.button("x", key=f"remove_{idx}"):
+                        del st.session_state.locations[idx]
+                        st.session_state.results = []
+                        st.rerun()
+                
+                st.markdown(f"</div>", unsafe_allow_html=True)
 
     # CSV Upload
     st.subheader("Upload Locations CSV")
@@ -139,22 +193,23 @@ with st.sidebar:
 
 
 
-    
+
 
 # Use columns to center
 col1, col2, col3 = st.columns([3,3,1])
+
 with col1:
     
     st.image("Images/header_img.png", width=400)
 
 with col2:
 
+
     #add top margin top
     st.markdown("<div style='margin-top: 100px;'></div>", unsafe_allow_html=True)
 
+    st.title("TSP SOLUTIONS")
     # Title
-    st.title("TSP Solver App")
-
     st.markdown("""
     <div style="padding-top: 20px;">
         <p style="color: #555; font-size: 18px; max-width: 700px; margin: auto;">
