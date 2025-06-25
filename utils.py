@@ -46,8 +46,8 @@ def generate_distance_matrix(locations):
     
     for i in range(n):
         for j in range(i+1, n):
-            lat1, lon1 = locations[i]["Geocordinate"]
-            lat2, lon2 = locations[j]["Geocordinate"]
+            lat1, lon1 = locations[i]["geo_coordinates"]
+            lat2, lon2 = locations[j]["geo_coordinates"]
             distance = haversine_distance(lat1, lon1, lat2, lon2)
             
             # Make the matrix symmetric

@@ -6,108 +6,18 @@ import pandas as pd
 from utils import  generate_distance_matrix, algorithmes, run_algorithmes, convert_to_float, equalize_length
 from streamlit_extras.stylable_container import stylable_container
 
+from Styles.SidebarStyle import sidebar_style
+from Styles.BaseStyle import base_style
+
 
 st.set_page_config(page_title="TSP Solver App", layout="wide")
 
-st.markdown("""
-    <style>
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    </style>
-""", unsafe_allow_html=True)
-
-st.markdown("""
-<style>
-    .custom-navbar {
-        position: fixed;
-        height: 0%;
-        display: flex;
-        width : 100%;
-        background-color: #e0fbfc;
-        margin-top:0;
-        padding-top:0;
-        color: black;
-       
-        margin-bottom: 0px;
-        z-index: 10000;
-    }
-
-    .custom-navbar h2 {
-        margin: 0;
-        padding: 0;
-        font-size: 3rem;
-    }
-</style>
 
 
-""", unsafe_allow_html=True)
+
+st.markdown(base_style, unsafe_allow_html=True)
 
 
-st.markdown("""
-    <style>
-        /* Remove padding from the main content container */
-        .block-container {
-            padding-top: 0rem !important;
-            padding-left: 1rem !important;
-            padding-right: 1rem !important;
-        }
-
-        /* Optional: remove margin on main if needed */
-        .main {
-            margin-top: 0rem !important;
-        }
-    </style>
-""", unsafe_allow_html=True)
-
-#st.title("TSP Solver App")
-
-# Inject custom HTML and CSs
-st.markdown("""
-    <style>
-            
-
-        .location-box {
-            border: 1px solid #E0FBFC;
-            border-radius: 10px;
-            padding: 10px;
-            margin-bottom: 0px;
-            background-color: #98C1D9;
-        }
-        .location-text {
-            font-size: 14px;
-            font-family: 'Segoe UI', sans-serif;
-            color: #333;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-     
-        }
-        .stButton>button {
-            background-color: #98C1D9;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 14px;
-            padding: 4px 8px;
-        }
-        .location-container{
-            width :"100%";
-            background-color: red;
-            }
-    </style>
-""", unsafe_allow_html=True)
-
-st.markdown(
-    """
-<style>
-    div[data-testid="stVerticalBlock"] div[style*="flex-direction: column;"] div[data-testid="stVerticalBlock"] {
-        border: 1px solid red;
-    }
-</style>
-""",
-    unsafe_allow_html=True,
-)
 
 # Initialize session state variables
 if 'locations' not in st.session_state:
@@ -125,41 +35,43 @@ def truncate_text(text, max_length=50):
 # Sidebar for location input
 with st.sidebar:
   
+    # Inject custom HTML and CSS
+    st.markdown(sidebar_style, unsafe_allow_html=True)
+
+
     # Manual location inputs
     st.subheader("Add Location Manually")
     name = st.text_input("location name")
-    col1, col2 = st.columns(2)
-    with col1:
+    Location_input = st.columns(2)
+    with Location_input[0]:
         lat = st.number_input("Latitude", min_value=-90.0, max_value=90.0, value=0.0, step=0.00001, format="%.5f")
-    with col2:
+    with Location_input[1]:
         lon = st.number_input("Longitude", min_value=-180.0, max_value=180.0, value=0.0, step=0.00001, format="%.5f")
     
     if st.button("Add Location"):
         idx = len(st.session_state.locations)
         if not name : 
             name = f"location {len(st.session_state.locations)+1}"
-        location = {"name" : name , "Geocordinate" : (lat, lon)}
+        location = {"name" : name , "geo_coordinates" : (lat, lon)}
         st.session_state.locations.append(location)
         st.rerun()
 
     if st.session_state.locations :
         st.header("Locations")
-    
-    # Display list of selected locations
-    #if st.session_state.locations:
-        #for idx, loc in enumerate(st.session_state.locations):
-            #st.write(truncate_text(f"{loc['name']} (Lat: {loc['Geocordinate'][0] :.6f}, Lon: {loc['Geocordinate'][1]:.6f})"))
-    # Display list with delete button
 
-        with stylable_container(key="locations_box",css_styles="location-container") :
-            
-   
+        if len(st.session_state.locations) <= 7:
+            locations_container =  st.container(border=True)
+        else :
+            locations_container =  st.container(height= 280)
+
+        with locations_container:
+           
             for idx, loc in enumerate(st.session_state.locations):
                 display_text = truncate_text(
-                    f"<strong>{loc['name']}</strong> (Lat: {loc['Geocordinate'][0]:.6f}, Lon: {loc['Geocordinate'][1]:.6f})"
+                    f"<strong>{loc['name']}</strong> (Lat: {loc['geo_coordinates'][0]:.6f}, Lon: {loc['geo_coordinates'][1]:.6f})"
                 )
-
                 with st.container():
+              
                     cols = st.columns([0.85, 0.15])
                     with cols[0]:
                         st.markdown(f"<div class='location-box'><div class='location-text'>{display_text}</div>",  unsafe_allow_html=True)
@@ -168,7 +80,7 @@ with st.sidebar:
                             del st.session_state.locations[idx]
                             st.session_state.results = []
                             st.rerun()
-  
+
 
     # CSV Upload
     st.subheader("Upload Locations CSV")
@@ -249,8 +161,8 @@ with col_map:
     default_location = [0, 0]
     if st.session_state.locations:
         # Center the map on the average of locations
-        lats = [loc["Geocordinate"][0] for loc in st.session_state.locations]
-        lons = [loc["Geocordinate"][1] for loc in st.session_state.locations]
+        lats = [loc["geo_coordinates"][0] for loc in st.session_state.locations]
+        lons = [loc["geo_coordinates"][1] for loc in st.session_state.locations]
         default_location = [sum(lats) / len(lats), sum(lons) / len(lons)]
     
     # Create the map
@@ -258,8 +170,8 @@ with col_map:
     
     # Add markers for each location
     for idx, loc in enumerate(st.session_state.locations):
-        lat = loc["Geocordinate"][0]
-        lon = loc["Geocordinate"][1]
+        lat = loc["geo_coordinates"][0]
+        lon = loc["geo_coordinates"][1]
         popup = f"Location {idx +1}: ({lat:.6f}, {lon:.6f})"
         folium.Marker(
             [lat, lon],
@@ -272,7 +184,7 @@ with col_map:
 
         # Get coordinates of the optimized route
         lowest = min(st.session_state.results, key=lambda x: x["distance"])
-        route_coords = [st.session_state.locations[i]["Geocordinate"] for i in lowest['optimized_route']]
+        route_coords = [st.session_state.locations[i]["geo_coordinates"] for i in lowest['optimized_route']]
 
         # Add the first location again to complete the circuit
         route_coords.append(route_coords[0])
@@ -294,7 +206,7 @@ with col_map:
         clicked_lat = map_data["last_clicked"]["lat"]
         clicked_lon = map_data["last_clicked"]["lng"]
         idx = len(st.session_state.locations)
-        new_location = location = {"name" : f"location {idx +1}" , "Geocordinate" : (clicked_lat, clicked_lon)}
+        new_location = location = {"name" : f"location {idx +1}" , "geo_coordinates" : (clicked_lat, clicked_lon)}
         
         # Check if the location already exists to avoid duplicates
         if new_location not in st.session_state.locations:
@@ -534,7 +446,7 @@ if st.session_state.results:
             # Show chart
         st_echarts(options=option, height="400px")
 
-    
+
 
 
 
