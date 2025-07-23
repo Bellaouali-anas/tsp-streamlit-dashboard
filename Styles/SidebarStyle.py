@@ -35,12 +35,12 @@ sidebar_style = """
     }
 
     .st-emotion-cache-1njlc4x:hover{
-        background-color: #98C1D9;
-        color: black;
+        background-color: #293241;
+        color: white;
    
     }
 
-    st-emotion-cache-1njlc4x:active{
+    st-emotion-cache-1njlc4x:active {
         background-color: #647b99;
         color: white;
    
@@ -73,9 +73,6 @@ sidebar_style = """
         margin : 0px;
     }
 
-    .my-special-container:hover{
-         background-color: black;
-    }
     .st-emotion-cache-1faspm{
         width :"100%";
         background-color: #e0fbfc;

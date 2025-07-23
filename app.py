@@ -1,119 +1,29 @@
 import streamlit as st
 import folium
 from streamlit_folium import st_folium
-from streamlit_echarts import st_echarts
 import pandas as pd
-from utils import  generate_distance_matrix, algorithmes, run_algorithmes, convert_to_float, equalize_length
-from streamlit_extras.stylable_container import stylable_container
+from utils import  generate_distance_matrix, algorithmes, run_algorithmes, assemble_progress, to_excel_bytes
+from plots import plot_execution_time, plot_memory_usage, get_algorithm_progress_fig, plot_cpu_usage
+
+from Styles.SidebarStyle import sidebar_style
+from Styles.BaseStyle import base_style
+from Styles.BodyStyle import body_style
+
 
 
 st.set_page_config(page_title="TSP Solver App", layout="wide")
 
-st.markdown("""
-    <style>
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    </style>
-""", unsafe_allow_html=True)
-
-st.markdown("""
-<style>
-    .custom-navbar {
-        position: fixed;
-        height: 0%;
-        display: flex;
-        width : 100%;
-        background-color: #e0fbfc;
-        margin-top:0;
-        padding-top:0;
-        color: black;
-       
-        margin-bottom: 0px;
-        z-index: 10000;
-    }
-
-    .custom-navbar h2 {
-        margin: 0;
-        padding: 0;
-        font-size: 3rem;
-    }
-</style>
 
 
-""", unsafe_allow_html=True)
 
-
-st.markdown("""
-    <style>
-        /* Remove padding from the main content container */
-        .block-container {
-            padding-top: 0rem !important;
-            padding-left: 1rem !important;
-            padding-right: 1rem !important;
-        }
-
-        /* Optional: remove margin on main if needed */
-        .main {
-            margin-top: 0rem !important;
-        }
-    </style>
-""", unsafe_allow_html=True)
-
-#st.title("TSP Solver App")
-
-# Inject custom HTML and CSs
-st.markdown("""
-    <style>
-            
-
-        .location-box {
-            border: 1px solid #E0FBFC;
-            border-radius: 10px;
-            padding: 10px;
-            margin-bottom: 0px;
-            background-color: #98C1D9;
-        }
-        .location-text {
-            font-size: 14px;
-            font-family: 'Segoe UI', sans-serif;
-            color: #333;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-     
-        }
-        .stButton>button {
-            background-color: #98C1D9;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 14px;
-            padding: 4px 8px;
-        }
-        .location-container{
-            width :"100%";
-            background-color: red;
-            }
-    </style>
-""", unsafe_allow_html=True)
-
-st.markdown(
-    """
-<style>
-    div[data-testid="stVerticalBlock"] div[style*="flex-direction: column;"] div[data-testid="stVerticalBlock"] {
-        border: 1px solid red;
-    }
-</style>
-""",
-    unsafe_allow_html=True,
-)
-
+st.markdown(base_style, unsafe_allow_html=True)
 # Initialize session state variables
 if 'locations' not in st.session_state:
     st.session_state.locations = []
 if 'results' not in st.session_state:
     st.session_state.results = []
+if 'csv_uploaded' not in st.session_state:
+    st.session_state.csv_uploaded = False
 
 
 
@@ -125,41 +35,43 @@ def truncate_text(text, max_length=50):
 # Sidebar for location input
 with st.sidebar:
   
+    # Inject custom HTML and CSS
+    st.markdown(sidebar_style, unsafe_allow_html=True)
+
+
     # Manual location inputs
     st.subheader("Add Location Manually")
     name = st.text_input("location name")
-    col1, col2 = st.columns(2)
-    with col1:
+    Location_input = st.columns(2)
+    with Location_input[0]:
         lat = st.number_input("Latitude", min_value=-90.0, max_value=90.0, value=0.0, step=0.00001, format="%.5f")
-    with col2:
+    with Location_input[1]:
         lon = st.number_input("Longitude", min_value=-180.0, max_value=180.0, value=0.0, step=0.00001, format="%.5f")
     
     if st.button("Add Location"):
         idx = len(st.session_state.locations)
         if not name : 
             name = f"location {len(st.session_state.locations)+1}"
-        location = {"name" : name , "Geocordinate" : (lat, lon)}
+        location = {"name" : name , "geo_coordinates" : (lat, lon)}
         st.session_state.locations.append(location)
         st.rerun()
 
     if st.session_state.locations :
         st.header("Locations")
-    
-    # Display list of selected locations
-    #if st.session_state.locations:
-        #for idx, loc in enumerate(st.session_state.locations):
-            #st.write(truncate_text(f"{loc['name']} (Lat: {loc['Geocordinate'][0] :.6f}, Lon: {loc['Geocordinate'][1]:.6f})"))
-    # Display list with delete button
 
-        with stylable_container(key="locations_box",css_styles="location-container") :
-            
-   
+        if len(st.session_state.locations) <= 7:
+            locations_container =  st.container(border=True)
+        else :
+            locations_container =  st.container(height= 280)
+
+        with locations_container:
+           
             for idx, loc in enumerate(st.session_state.locations):
                 display_text = truncate_text(
-                    f"<strong>{loc['name']}</strong> (Lat: {loc['Geocordinate'][0]:.6f}, Lon: {loc['Geocordinate'][1]:.6f})"
+                    f"<strong>{loc['name']}</strong> (Lat: {loc['geo_coordinates'][0]:.6f}, Lon: {loc['geo_coordinates'][1]:.6f})"
                 )
-
                 with st.container():
+              
                     cols = st.columns([0.85, 0.15])
                     with cols[0]:
                         st.markdown(f"<div class='location-box'><div class='location-text'>{display_text}</div>",  unsafe_allow_html=True)
@@ -168,32 +80,69 @@ with st.sidebar:
                             del st.session_state.locations[idx]
                             st.session_state.results = []
                             st.rerun()
-  
 
-    # CSV Upload
+        # Clear all locations
+        if st.button("Clear All Locations"):
+            st.session_state.locations = []
+            st.session_state.results = []
+            st.session_state.csv_uploaded =False
+            uploaded_file = None
+            df_preview = None
+            st.rerun()
+
+        excel_data = to_excel_bytes(st.session_state.locations)
+
+        st.download_button(
+            label="📥 Download Excel",
+            data=excel_data,
+            file_name="locations.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+
+
+    # CSV Upload Section
     st.subheader("Upload Locations CSV")
-    st.write("*CSV should have 'latitude' and 'longitude' columns")
-    uploaded_file = st.file_uploader("Choose a CSV file", type=["csv"])
-    
-    if uploaded_file is not None:
-        try:
-            df = pd.read_csv(uploaded_file)
-            if 'latitude' in df.columns and 'longitude' in df.columns and name in df.columns:
+    st.write("*CSV should have 'name', 'latitude' and 'longitude' columns")
+    uploaded_file = st.file_uploader("Choose a CSV file", type=["csv", "xlsx"])
 
-                new_locations = list(zip(df['latitude'], df['longitude']))
-                st.session_state.locations.extend(new_locations)
-                st.success(f"Added {len(new_locations)} locations from CSV file")
-                st.rerun()
+
+    # Show only if a file is selected and not already uploaded
+    if uploaded_file is not None :
+        try:
+            if uploaded_file.name.endswith('.csv'):
+                df_preview = pd.read_csv(uploaded_file)
+            elif uploaded_file.name.endswith('.xlsx'):
+                df_preview = pd.read_excel(uploaded_file)
+                #print("file uplaoded")
             else:
-                st.error("CSV must contain 'latitude' and 'longitude' columns")
+                st.error("Unsupported file format.")
+                df_preview = None
+
+            if df_preview is not None and not st.session_state.csv_uploaded:
+                st.write("📄 Preview of uploaded file:")
+                df_no_index = df_preview[['name', 'latitude', 'longitude']].head().reset_index(drop=True)
+                st.dataframe(df_no_index)
+
+                # Confirm upload
+                if st.button("✅ Upload File"):
+                    if all(col in df_preview.columns for col in ['name', 'latitude', 'longitude']):
+                        new_locations = [
+                            {"name": row['name'], "geo_coordinates": (row['latitude'], row['longitude'])}
+                            for _, row in df_preview.iterrows()
+                        ]
+
+                        st.session_state.locations.extend(new_locations)
+                        st.success(f"✅ Successfully added {len(new_locations)} locations.")
+                        st.session_state.csv_uploaded = True
+                        df_preview = None
+                        st.rerun()
+                    else:
+                        st.error("❌ File must contain 'name', 'latitude' and 'longitude' columns.")
+
         except Exception as e:
-            st.error(f"Error reading CSV file: {e}")
-    
-    # Clear all locations
-    if st.button("Clear All Locations"):
-        st.session_state.locations = []
-        st.session_state.results = []
-        st.rerun()
+            st.error(f"⚠️ Error reading file: {e}")
+
+        
 
     st.markdown("### 👤 Contact Me")
     st.markdown("""
@@ -206,33 +155,40 @@ with st.sidebar:
     st.markdown("Feel free to reach out or check out my work!")
 
 
-
-
+st.markdown(body_style, unsafe_allow_html=True)
 
 # Use columns to center
-col1, col2, col3 = st.columns([3,3,1])
+col1, col2, _ = st.columns([3, 4, 1])
 
-with col1:
-    
+with col1: 
     st.image("Images/header_img.png", width=400)
 
 with col2:
 
 
     #add top margin top
-    st.markdown("<div style='margin-top: 100px;'></div>", unsafe_allow_html=True)
-
-    st.title("TSP SOLUTIONS")
+    st.markdown("""<div class="top-margin"></div>""", unsafe_allow_html=True)
+    
     # Title
-    st.markdown("""
-    <div style="padding-top: 20px;">
-        <p style="color: #555; font-size: 18px; max-width: 700px; margin: auto;">
-            A study-focused Streamlit web app to visualize and compare different algorithms 
-            solving the Traveling Salesman Problem (TSP). Built for learning, experimentation, 
-            and educational purposes.
-        </p>
+    st.markdown(
+    """
+    <div class="centered-title">TSP Algorithms simulation</div>
+    """,
+    unsafe_allow_html=True
+    )
+
+    # Description
+    st.markdown(
+    """
+    <div class="custom-text">
+        This web app helps compare the performance of different optimization algorithms in solving the Traveling Salesman Problem (TSP) using real-world locations. Built for educational purposes, the app is free to use and still in development. More algorithms will be added soon. Anyone with feedback or who wishes to contribute or test their algorithm is welcome to contact me via email or LinkedIn (links in the sidebar). The source code is available on GitHub.
     </div>
-    """, unsafe_allow_html=True)
+    <div class="custom-text">   
+         
+    </div>
+    """,
+    unsafe_allow_html=True
+    )
 
     
 # Main content area
@@ -243,14 +199,14 @@ col_map, col_results = st.columns([2, 1])
 with col_map:
 
     #add top margin top
-    st.markdown("<div style='margin-top: 50px;'></div>", unsafe_allow_html=True)
+    st.markdown("""<div class="top-margin"></div>""", unsafe_allow_html=True)
 
     # Default location (center of the map) - adjust as needed
     default_location = [0, 0]
     if st.session_state.locations:
         # Center the map on the average of locations
-        lats = [loc["Geocordinate"][0] for loc in st.session_state.locations]
-        lons = [loc["Geocordinate"][1] for loc in st.session_state.locations]
+        lats = [loc["geo_coordinates"][0] for loc in st.session_state.locations]
+        lons = [loc["geo_coordinates"][1] for loc in st.session_state.locations]
         default_location = [sum(lats) / len(lats), sum(lons) / len(lons)]
     
     # Create the map
@@ -258,8 +214,8 @@ with col_map:
     
     # Add markers for each location
     for idx, loc in enumerate(st.session_state.locations):
-        lat = loc["Geocordinate"][0]
-        lon = loc["Geocordinate"][1]
+        lat = loc["geo_coordinates"][0]
+        lon = loc["geo_coordinates"][1]
         popup = f"Location {idx +1}: ({lat:.6f}, {lon:.6f})"
         folium.Marker(
             [lat, lon],
@@ -272,7 +228,7 @@ with col_map:
 
         # Get coordinates of the optimized route
         lowest = min(st.session_state.results, key=lambda x: x["distance"])
-        route_coords = [st.session_state.locations[i]["Geocordinate"] for i in lowest['optimized_route']]
+        route_coords = [st.session_state.locations[i]["geo_coordinates"] for i in lowest['optimized_route']]
 
         # Add the first location again to complete the circuit
         route_coords.append(route_coords[0])
@@ -294,17 +250,18 @@ with col_map:
         clicked_lat = map_data["last_clicked"]["lat"]
         clicked_lon = map_data["last_clicked"]["lng"]
         idx = len(st.session_state.locations)
-        new_location = location = {"name" : f"location {idx +1}" , "Geocordinate" : (clicked_lat, clicked_lon)}
+        new_location = location = {"name" : f"location {idx +1}" , "geo_coordinates" : (clicked_lat, clicked_lon)}
         
         # Check if the location already exists to avoid duplicates
         if new_location not in st.session_state.locations:
             st.session_state.locations.append(new_location)
             st.rerun()
+ 
         
 with col_results : 
 
     #add top margin top
-    st.markdown("<div style='margin-top: 50px;'></div>", unsafe_allow_html=True)
+    st.markdown("""<div class="top-margin"></div>""", unsafe_allow_html=True)
 
     #add sub-header
     st.subheader("TSP algorithms")
@@ -316,15 +273,17 @@ with col_results :
     # Execute TSP algorithm
     if st.button("Solve TSP"):
 
-        if len(selected_algorithms) == 3: 
+        if selected_algorithms: 
             if len(st.session_state.locations) < 3:
                 st.error("Please add at least 3 locations to solve TSP")
             else:
                 # Create distance matrix
                 distance_matrix = generate_distance_matrix(st.session_state.locations)
-            
+
+                print('selected algo : ',selected_algorithms)
                 # Run algorithmes
                 results = run_algorithmes(selected_algorithms, distance_matrix)
+                #print('results before : ' , results)
                 st.session_state.results = results
 
                 # Trigger rerun to update the map
@@ -336,7 +295,7 @@ with col_results :
     # calculate and display lowest distance
     if st.session_state.results:
      
-        st.subheader("TSP Solution")
+        st.subheader("Solution")
 
         # find the best solution
         lowest = min(st.session_state.results, key=lambda x: x["distance"])
@@ -354,188 +313,28 @@ with col_results :
         )
 
 
-# charts place
-col_chart, col_df = st.columns([3, 2])
 
- 
 if st.session_state.results:
 
-    with col_df:
+    # Display progress over time
+    algos_progress = assemble_progress(st.session_state.results)
+    fig = get_algorithm_progress_fig(algos_progress, selected_algorithms)
+    st.plotly_chart(fig, use_container_width=True) 
 
+    # charts place
+    col_time, col_memory, col_cpu = st.columns([1, 1, 1])
 
-        # Define ECharts option for the histogram
-        hist_option = {
-            "backgroundColor": "#293241",
-            "title": {
-                "text": "Execution Time Histogram ",
-                "left": "center",
-                "textStyle": {
-                    "color": "#e0fbfc",
-                    "fontSize": 25,
-                    "fontFamily": "Verdana",
-                    "fontWeight": "bold"
-                }
-            },
-            "tooltip": {
-                "trigger": "axis"
-            },
-            "xAxis": {
-                "type": "category",
-                "data": selected_algorithms,
-                "axisLabel": {"rotate": 45,
-                              "fontSize": 12,
-                            "fontFamily": "Verdana",
-                            "color": "#f6fff8"
-                            }
+    with col_time : 
+        # Display execution time
+        fig = plot_execution_time(st.session_state.results)
+        st.plotly_chart(fig, use_container_width=True)
 
-            },
-            "yAxis": {
-                "type": "value",
-                 "axisLine": {
-                    "lineStyle": {
-                        "color": "#f6fff8",
-                    }
-                },
-                "axisLabel": {
-                    "fontSize": 12,
-                    "fontFamily": "Verdana"
-                }
-            },
-            "series": [{
-                "type": "bar",
-                "data": [result["time"] for result in st.session_state.results],
-                "itemStyle": {
-                    "color": "#e0fbfc"
-                }
-            }]
-        }
-
-        # Render the chart
-        st_echarts(options=hist_option, height="400px")
-
-    with col_chart:
-       
-        #Line_1, Line_2, Line_3  = equalize_length()
-
-        # ECharts option for multiple lines
-        option = {
-            "backgroundColor": "#98C1D9",
-            "title": {
-                "text": "Solution Progress",
-                "left": "center",
-                "textStyle": {
-                    "color": "#e0fbfc",
-                    "fontSize": 25,
-                    "fontFamily": "Verdana",
-                    "fontWeight": "bold"
-                }
-            },
-            "tooltip": {
-                "trigger": "axis",
-                "backgroundColor": "#3d5a80",
-                "borderColor": "#98c1d9",
-                "borderWidth": 1,
-                "textStyle": {
-                    "color": "#e0fbfc",
-                    "fontSize": 16
-                }
-            },
-            "legend": {
-                "data": selected_algorithms,
-                "top": "10%",
-                "textStyle": {
-                    "color": "#293241",
-                    "fontSize": 16
-                }
-            },
-            "xAxis": {
-                "type": "category",
-                "axisLine": {
-                    "lineStyle": {
-                        "color": "#f6fff8",
-                    }
-                },
-                "axisLabel": {
-                    "fontSize": 15,
-                    "fontFamily": "Verdana",
-                }
-            },
-            "yAxis": {
-                "type": "value",
-                "axisLine": {
-                    "lineStyle": {
-                        "color": "#f6fff8",
-                    }
-                },
-                "axisLabel": {
-                    "fontSize":  16,
-                    "fontFamily": "Verdana"
-                }
-            },
-            "grid": {
-                "left": "10%",
-                "right": "10%",
-                "top": "20%",
-                "bottom": "10%",
-                "borderColor": "#f6fff8",
-                "borderWidth": 2,
-                "containLabel": True
-            },
-            "series": [
-                {
-                    "name": st.session_state.results[0]["algorithm"],
-                    "type": "line",
-                    "data": convert_to_float(st.session_state.results[0]["progress_data"]),
-                    "lineStyle": {"width": 2},
-                    "itemStyle": {"color": "#ee6c4d"},  # red
-                    "emphasis": {
-                            "focus": "series",
-                            "label": {
-                                "show": True,
-                                "formatter": "{c}",
-                                "fontSize": 14
-                            }
-                        }
-                },
-                {
-                    "name": st.session_state.results[1]["algorithm"],
-                    "type": "line",
-                    "data": convert_to_float(st.session_state.results[1]["progress_data"]),
-                    "lineStyle": {"width": 2},
-                    "itemStyle": {"color": "#e0fbfc"},  # blue
-                    "emphasis": {
-                            "focus": "series",
-                            "label": {
-                                "show": True,
-                                "formatter": "{c}",
-                                "fontSize": 14
-                            }
-                        }
-                },
-                {
-                    "name": st.session_state.results[2]["algorithm"],
-                    "type": "line",
-                    "data": convert_to_float(st.session_state.results[2]["progress_data"]),
-                    "lineStyle": {"width": 2},
-                    "itemStyle": {"color": "#293241"},  # green
-                    "showSymbol": True,
-                    "emphasis": {
-                            "focus": "series",
-                            "label": {
-                                "show": True,
-                                "formatter": "{c}",
-                                "fontSize": 14
-                            }
-                        }
-                }
-            ]
-        }
-
-            # Show chart
-        st_echarts(options=option, height="400px")
-
+    with col_memory :
+        # Display memory used
+        fig = plot_memory_usage(st.session_state.results)
+        st.plotly_chart(fig, use_container_width=True)
     
-
-
-
-
+    with col_cpu :
+        # Display memory used
+        fig = plot_cpu_usage(st.session_state.results)
+        st.plotly_chart(fig, use_container_width=True)

@@ -1,28 +1,27 @@
 
 
-sidebar_style = """
+body_style = """
 <style>
-    .custom-navbar {
-        position: fixed;
-        height: 0%;
-        display: flex;
-        width : 100%;
-        background-color: #e0fbfc;
-        margin-top:0;
-        padding-top:0;
-        color: black;
-       
-        margin-bottom: 0px;
-        z-index: 10000;
-    }
-
-    .custom-navbar h2 {
-        margin: 0;
-        padding: 0;
-        font-size: 3rem;
-    }
-
     
+    .custom-text {
+        font-family: 'Roboto', sans-serif;
+        font-size: 18px;
+        line-height: 1.6;
+        text-align: justify;
+    }
+    
+    .centered-title {
+        font-family: 'Roboto', sans-serif;
+        font-size: 42px;
+        font-weight: bold;
+        text-align: center;
+        margin-top: 10px;
+        margin-bottom: 30px;
+    }
+
+    .top-margin {
+        margin-top: 50px;
+    }
 </style>
 
 
