@@ -66,3 +66,4 @@ streamlit-toggle-switch==1.0.2
 streamlit-vertical-slider==2.5.5
 streamlit_folium==0.25.0
 psutil
+openpyxl
